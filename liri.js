@@ -10,23 +10,66 @@ var inquirer = require("inquirer");
 //Requires Spotify
 var Spotify = require('node-spotify-api');
 
-// Ask the question a series of questions
-inquirer.prompt([
+//Requires fs
+var fs = require("fs");
 
-  {
+//Requires request
+var request = require("request");
+
+// Ask the question a series of questions
+
+function processAnswers(answers){
+  console.log("And your answers are:", answers);
+}
+
+function validateName(name){
+        return name !== "";
+    }
+
+var questions = [
+ {
     type: "list",
     name: "itemPicked",
     message: "What would you like to do???",
     choices: ["my-tweets","spotify-this-song","movie-this","do-what-it-says"]
-  },
-	{	
+  },{
+    message: "Enter in my screen name scottjac01 or anyones screen name",
+    type: "input",
+    name: "tweetHandle",
+    validate: validateName,
+    when: function(answers){
+    	return answers.itemPicked === "my-tweets";
+    }
+},{	
 		type: "input",
 	 	name: "songPicked",
-		message: "What song would you like to look up???"
+		message: "What song would you like to look up???",
+		validate: validateName,
+		when: function(answers) {
+                return answers.itemPicked === "spotify-this-song";
+              }
+	},{
+		type: "input",
+	 	name: "moviePicked",
+		message: "What movie would you like to look up???",
+		validate: validateName,
+		when: function(answers) {
+                return answers.itemPicked === "movie-this";
+              }
+	},{
+		type: "confirm",
+	 	name: "liriCmd",
+		message: "You want me to just do-what-it-says???",
+		default: true,
+		when: function(answers) {
+                return answers.itemPicked === "do-what-it-says";
+              }
 	}
-  ])
-.then(function(inquirerResponse) {
-    // inquirerResponse.
+
+];
+// Inquirer questions and answers.
+inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
+    
     if (inquirerResponse.itemPicked === "my-tweets") {
       var screenName = "scottjac01";
 	// Gets all of keys
