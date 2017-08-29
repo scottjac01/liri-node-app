@@ -114,12 +114,13 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 	///Next If statement
 	if (inquirerResponse.itemPicked === "spotify-this-song"  || inquirerResponse.itemPicked === "do-what-it-says"){
 			    if(inquirerResponse.liriCmd){
+				var songName;
 			    	fs.readFile("random.txt", "utf8", function(error, data) {
   					// If the code experiences any errors it will log the error to the console.
   					if (error) {
     					return console.log(error);
   						}
-			    	var songName = data[0];
+			    	songName = data[0];
 			    });
 			    } else {
 			    	songName = inquirerResponse.songPicked;
