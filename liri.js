@@ -12,6 +12,16 @@ var Spotify = require('node-spotify-api');
 
 //Requires fs
 var fs = require("fs");
+var logfile = "logfile.txt";
+//Start a log file to keep track of answers.
+fs.writeFile(logfile, "Log File: " + "\n", function(err) {
+
+  // If the code experiences any errors it will log the error to the console.
+  if (err) {
+    return console.log(err);
+  }
+});
+
 
 //Requires request
 var request = require("request");
@@ -44,6 +54,7 @@ var questions = [
 		type: "input",
 	 	name: "songPicked",
 		message: "What song would you like to look up???",
+		default: "The Sign",
 		validate: validateName,
 		when: function(answers) {
                 return answers.itemPicked === "spotify-this-song";
@@ -72,38 +83,56 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
     
     if (inquirerResponse.itemPicked === "my-tweets") {
       var screenName = inquirerResponse.tweetHandle;
-	// Gets all of keys
-	var keys = authKeys.twitterKeys;
 
-	// assigned twitterKeys and store in variables
-	var consumer_key = keys.consumer_key;
-	var consumer_secret = keys.consumer_secret;
-	var access_token_key = keys.access_token_key;
-	var access_token_secret = keys.access_token_secret;
+			// Gets all of keys
+			var keys = authKeys.twitterKeys;
 
-	//create a new Twitter oobject called client
-	var client = new Twitter({
-	consumer_key: keys.consumer_key,
-	consumer_secret: keys.consumer_secret,
-	access_token_key: keys.access_token_key,
-	access_token_secret: keys.access_token_secret,
-	});
+			// assigned twitterKeys and store in variables
+			var consumer_key = keys.consumer_key;
+			var consumer_secret = keys.consumer_secret;
+			var access_token_key = keys.access_token_key;
+			var access_token_secret = keys.access_token_secret;
+
+			//create a new Twitter oobject called client
+			var client = new Twitter({
+			consumer_key: keys.consumer_key,
+			consumer_secret: keys.consumer_secret,
+			access_token_key: keys.access_token_key,
+			access_token_secret: keys.access_token_secret,
+			});
 
 	//call the twitter API
 	client.get('statuses/user_timeline', { screen_name: screenName , count: 5 }, function(error, tweets, response) {
 	    if (!error) {
 	    	for(var i = 0; i < tweets.length; i++){
 	    		console.log("==============================================");
-	  			console.log("Here are my tweets: \n" + tweets[i].user.name + "\n" + tweets[i].user.screen_name + "" +"\n" + tweets[i].user.friends_count + "\n" +
-	  			tweets[i].user.created_at + "\n" + tweets[i].text);
-	  			}
+	  			console.log("Here are my tweets: \n" + tweets[i].user.name + "\n" + tweets[i].user.screen_name + "" +"\n" + 
+	  				tweets[i].user.friends_count + "\n" +
+	  				tweets[i].user.created_at + "\n" + tweets[i].text);
+	  				}
 				}
 				console.log(error);
+		});
+		fs.appendFile(logfile, "Tweet Handle: " + inquirerResponse.tweetHandle + "\n", function(err) {
+			// If an error was experienced we say it.
+		  if (err) {
+		    console.log(err);
+		  	}
 			});
-		}
+	}
 	///Next If statement
-	if (inquirerResponse.itemPicked === "spotify-this-song"){
-			    var songName = inquirerResponse.songPicked;
+	if (inquirerResponse.itemPicked === "spotify-this-song"  || inquirerResponse.itemPicked === "do-what-it-says"){
+			    if(inquirerResponse.liriCmd){
+			    	fs.readFile("random.txt", "utf8", function(error, data) {
+  					// If the code experiences any errors it will log the error to the console.
+  					if (error) {
+    					return console.log(error);
+  						}
+			    	var songName = data[0];
+			    });
+			    } else {
+			    	songName = inquirerResponse.songPicked;
+			    }
 			    var spotKeys = authKeys.spotifyKeys;
 					var spotify = new Spotify({
 	  				id: spotKeys.clientID,
@@ -122,6 +151,12 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 		    					"Preview Link: " + data.tracks.items[i].album.external_urls.spotify + "\n" +
 		    					"Album Name: " + data.tracks.items[i].album.name);
 		    			} 
+						});
+					fs.appendFile(logfile, "Spotify Song: " + inquirerResponse.songPicked + "\n", function(err) {
+						// If an error was experienced we say it.
+					  if (err) {
+					    console.log(err);
+					  	}
 						});
 	  			}
 	  ///Next if statement
@@ -144,7 +179,13 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 					    	"Language: " + JSON.parse(body).Language + "\n" +
 					    	"Plot: " + JSON.parse(body).Plot + "\n" +
 					    	"Actors: " + JSON.parse(body).Actors);
-					  }
-					});
-	  		}
+					  	}
+						});
+					fs.appendFile(logfile, "Movie : " + inquirerResponse.moviePicked + "\n", function(err) {
+						// If an error was experienced we say it.
+					  if (err) {
+					    console.log(err);
+					  	}
+						});
+	  			}
 	  	});
