@@ -120,7 +120,7 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
   					if (error) {
     					return console.log(error);
   						}
-			    	songName = data[0];
+			    	songName = data;
 			    });
 			    } else {
 			    	songName = inquirerResponse.songPicked;
