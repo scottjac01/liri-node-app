@@ -13,15 +13,6 @@ var Spotify = require('node-spotify-api');
 //Requires fs
 var fs = require("fs");
 var logfile = "logfile.txt";
-//Start a log file to keep track of answers.
-fs.writeFile(logfile, "Log File: " + "\n", function(err) {
-
-  // If the code experiences any errors it will log the error to the console.
-  if (err) {
-    return console.log(err);
-  }
-});
-
 
 //Requires request
 var request = require("request");
