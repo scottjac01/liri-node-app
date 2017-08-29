@@ -71,7 +71,7 @@ var questions = [
 inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
     
     if (inquirerResponse.itemPicked === "my-tweets") {
-      var screenName = "scottjac01";
+      var screenName = inquirerResponse.tweetHandle;
 	// Gets all of keys
 	var keys = authKeys.twitterKeys;
 
@@ -90,7 +90,7 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 	});
 
 	//call the twitter API
-	client.get('statuses/user_timeline', { screen_name: screenName , count: 20 }, function(error, tweets, response) {
+	client.get('statuses/user_timeline', { screen_name: screenName , count: 5 }, function(error, tweets, response) {
 	    if (!error) {
 	    	for(var i = 0; i < tweets.length; i++){
 	    		console.log("==============================================");
@@ -110,20 +110,41 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 	  				secret: spotKeys.clientSecret
 					});
 	 
-					spotify.search({type: "track", query: songName, limit: 20 }, function(err, data) {
+					spotify.search({type: "track", query: songName, limit: 5 }, function(err, data) {
   				if (err) {
     				return console.log('Error occurred: ' + err);
   					}
-	  				console.log(data.tracks.items[0].album.artists[0].name);
 	  					//for loop
 		    			for(var i = 0; i < data.tracks.items.length; i++){
 		    				console.log("==============================================");
-		    				console.log("Artist Name: " + data.tracks.items[i].album.artists[i].name + "\n" +
+		    				console.log("Artist Name: " + data.tracks.items[i].album.artists[0].name + "\n" +
 		    					"Song Name: " + data.tracks.items[i].name + "\n" +
 		    					"Preview Link: " + data.tracks.items[i].album.external_urls.spotify + "\n" +
 		    					"Album Name: " + data.tracks.items[i].album.name);
-		    			}
- 						console.log(data); 
+		    			} 
 						});
 	  			}
-	  		});
+	  ///Next if statement
+	  // Then run a request to the OMDB API with the movie specified
+	if (inquirerResponse.itemPicked === "movie-this"){
+					var movieName = inquirerResponse.moviePicked;
+			    var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=40e9cece";
+					request(queryUrl, function(error, response, body) {
+
+					  // If the request is successful
+					  if (!error && response.statusCode === 200) {
+					  	console.log(JSON.parse(body));
+					    // Parse the body of the site and recover just the imdbRating
+					    console.log("==============================================");
+					    console.log("Title: " + JSON.parse(body).Title + "\n" +
+					    	"Year: " + JSON.parse(body).Year + "\n" +
+					    	"IMDB Rating: " + JSON.parse(body).Ratings[0].Source + "\n" +
+					    	"Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Source + "\n" +
+					    	"Country Movie was Made: " + JSON.parse(body).Country + "\n" +
+					    	"Language: " + JSON.parse(body).Language + "\n" +
+					    	"Plot: " + JSON.parse(body).Plot + "\n" +
+					    	"Actors: " + JSON.parse(body).Actors);
+					  }
+					});
+	  		}
+	  	});
