@@ -159,7 +159,7 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 
 					  // If the request is successful
 					  if (!error && response.statusCode === 200) {
-					  	console.log(JSON.parse(body));
+					  	//console.log(JSON.parse(body));
 					    // Parse the body of the site and recover just the imdbRating
 					    console.log("==============================================");
 					    console.log("Title: " + JSON.parse(body).Title + "\n" +
@@ -170,6 +170,7 @@ inquirer.prompt(questions, processAnswers).then(function(inquirerResponse) {
 					    	"Language: " + JSON.parse(body).Language + "\n" +
 					    	"Plot: " + JSON.parse(body).Plot + "\n" +
 					    	"Actors: " + JSON.parse(body).Actors);
+						console.log("==============================================");
 					  	}
 						});
 					fs.appendFile(logfile, "Movie : " + inquirerResponse.moviePicked + "\n", function(err) {
