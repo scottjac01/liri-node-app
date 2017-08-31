@@ -53,16 +53,7 @@ var questions = [{
         when: function(answers) {
             return answers.itemPicked === "movie-this";
         }
-    }, {
-        type: "input",
-        name: "liriCmd",
-        message: "Enter in \"do-what-it-says\"???",
-        validate: validateName,
-        when: function(answers) {
-            return answers.itemPicked === "do-what-it-says";
-        }
     }
-
 ];
 
 //Launch the questions and use the answer
@@ -111,52 +102,41 @@ inquirer.prompt(questions).then(function(inquirerResponse) {
         });
     }
     ///Next If statement
-    if (inquirerResponse.itemPicked === "spotify-this-song" || inquirerResponse.itemPicked === "do-what-it-says") {
-        if (inquirerResponse.liriCmd) {
-            var songName;
-            fs.readFile("random.txt", "utf8", function(error, data) {
-                // If the code experiences any errors it will log the error to the console.
-                console.log(data);
-                if (error) {
-                    return console.log(error);
-                }
-                songName = data;
-            });
-        } else {
+    if (inquirerResponse.itemPicked === "spotify-this-song"){
             songName = inquirerResponse.songPicked;
+            spotifySearch(songName);
+    } else if (inquirerResponse.itemPicked === "do-what-it-says") {
+        var songName = fs.readFileSync("random.txt", "utf8");
+        console.log(songName);
+            spotifySearch(songName);
         }
 
-        //
-        var spotKeys = authKeys.spotifyKeys;
-        var spotify = new Spotify({
-            id: spotKeys.clientID,
-            secret: spotKeys.clientSecret
-        });
+        function spotifySearch(songName){
+            var spotKeys = authKeys.spotifyKeys;
+            var spotify = new Spotify({
+                id: spotKeys.clientID,
+                secret: spotKeys.clientSecret
+            });
 
-        spotify.search({
-            type: "track",
-            query: songName,
-            limit: 5
-        }, function(err, data) {
-            if (err) {
-                return console.log('Error occurred: ' + err);
-            }
-            //for loop
-            for (var i = 0; i < data.tracks.items.length; i++) {
-                console.log("==============================================");
-                console.log("Artist Name: " + data.tracks.items[i].album.artists[0].name + "\n" +
-                    "Song Name: " + data.tracks.items[i].name + "\n" +
-                    "Preview Link: " + data.tracks.items[i].album.external_urls.spotify + "\n" +
-                    "Album Name: " + data.tracks.items[i].album.name);
-            }
-        });
-        fs.appendFile(logfile, "Spotify Song: " + inquirerResponse.songPicked + "\n", function(err) {
-            // If an error was experienced we say it.
-            if (err) {
-                console.log(err);
-            }
-        });
-    }
+            spotify.search({
+                type: "track",
+                query: songName,
+                limit: 5
+            }, function(err, data) {
+                if (err) {
+                    return console.log('Error occurred: ' + err);
+                }
+                //for loop
+                for (var i = 0; i < data.tracks.items.length; i++) {
+                    console.log("==============================================");
+                    console.log("Artist Name: " + data.tracks.items[i].album.artists[0].name + "\n" +
+                        "Song Name: " + data.tracks.items[i].name + "\n" +
+                        "Preview Link: " + data.tracks.items[i].album.external_urls.spotify + "\n" +
+                        "Album Name: " + data.tracks.items[i].album.name);
+                }
+            });
+            fs.appendFileSync(logfile, "Spotify Song: " + songName + "\n");
+        }
     ///Next if statement
     // Then run a request to the OMDB API with the movie specified
     if (inquirerResponse.itemPicked === "movie-this") {
@@ -188,6 +168,3 @@ inquirer.prompt(questions).then(function(inquirerResponse) {
         });
     }
 });
-/*.catch(function() {
-    console.log(answer);
-});*/
