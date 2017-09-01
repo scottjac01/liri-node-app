@@ -9,4 +9,4 @@ Select what you want liri to do.<br>
   movie-this,<br>
   do-what-it-says <br>
   
-  Depending on your choices liri might ask some other question<br>
+  Depending on your choices, liri will ask other specific question<br>
