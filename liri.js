@@ -123,8 +123,12 @@ inquirer.prompt(questions).then(function(inquirerResponse) {
                 query: songName,
                 limit: 5
             }, function(err, data) {
+
                 if (err) {
                     return console.log('Error occurred: ' + err);
+                    
+                } if(data.tracks.total == 0){
+                    console.log("Sorry no tracks for: " + songName);
                 }
                 //for loop
                 for (var i = 0; i < data.tracks.items.length; i++) {
@@ -143,10 +147,9 @@ inquirer.prompt(questions).then(function(inquirerResponse) {
         var movieName = inquirerResponse.moviePicked;
         var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=40e9cece";
         request(queryUrl, function(error, response, body) {
-
             // If the request is successful
-            if (!error && response.statusCode === 200) {
-                //console.log(JSON.parse(body));
+            if (!error && response.statusCode === 200 && body.Response === "true") {
+                console.log(JSON.parse(body));
                 // Parse the body of the site and recover just the imdbRating
                 console.log("==============================================");
                 console.log("Title: " + JSON.parse(body).Title + "\n" +
@@ -159,6 +162,7 @@ inquirer.prompt(questions).then(function(inquirerResponse) {
                     "Actors: " + JSON.parse(body).Actors);
                 console.log("==============================================");
             }
+            console.log("Sorry: " + JSON.parse(body).Response + ", " + JSON.parse(body).Error);
         });
         fs.appendFile(logfile, "Movie : " + inquirerResponse.moviePicked + "\n", function(err) {
             // If an error was experienced we say it.
